@@ -1,29 +1,22 @@
-//
-//  ViewController.m
 //  VKMap
-//
-//  Created by Vinh Khoa Nguyen on 16/11/18.
-//  Copyright © 2018 Vinh Khoa Nguyen. All rights reserved.
-//
 
 #import "ViewController.h"
 
-@interface ViewController ()
-
-@end
+@import Mapbox;
 
 @implementation ViewController
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
 	[super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
+
+	NSURL *const url = [NSURL URLWithString:@"mapbox://styles/mapbox/streets-v10"];
+	MGLMapView *const mapView = [[MGLMapView alloc] initWithFrame:self.view.bounds styleURL:url];
+	mapView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+	[mapView setCenterCoordinate:CLLocationCoordinate2DMake(59.31, 18.06)
+										 zoomLevel:9
+											animated:NO];
+	[self.view addSubview:mapView];
 }
-
-
-- (void)didReceiveMemoryWarning {
-	[super didReceiveMemoryWarning];
-	// Dispose of any resources that can be recreated.
-}
-
 
 @end
