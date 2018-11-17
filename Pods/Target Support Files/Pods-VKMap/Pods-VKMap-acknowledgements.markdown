@@ -951,7 +951,7 @@ limitations under the License.
 
 ## MapboxDirections.swift
 
-Copyright © 2014–2017, Mapbox
+Copyright © 2014–2018, Mapbox
 
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above

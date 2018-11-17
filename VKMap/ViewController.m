@@ -42,7 +42,7 @@ static double kInitialZoomLevel = 11;
 	_longPressGR = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(_longPressedOnMap:)];
 	[_mapView addGestureRecognizer:_longPressGR];
 
-	MBDirections *directions = [MBDirections sharedDirections];
+	//MBDirections *directions = [MBDirections sharedDirections];
 }
 
 - (void)dealloc
