@@ -14,10 +14,10 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "E3E594ADFF071C98FCF962141B2F6D2D"
-               BlueprintName = "Pods-VKMap"
+               BlueprintIdentifier = "94134D212EF3577E30FF2D7561F7F7AD"
+               BlueprintName = "Polyline"
                ReferencedContainer = "container:Pods.xcodeproj"
-               BuildableName = "libPods-VKMap.a">
+               BuildableName = "libPolyline.a">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>

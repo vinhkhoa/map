@@ -1,0 +1,6 @@
+module Pods_VKMap {
+  umbrella header "Pods-VKMap-umbrella.h"
+
+  export *
+  module * { export * }
+}

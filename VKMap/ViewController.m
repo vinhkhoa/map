@@ -3,6 +3,7 @@
 #import "ViewController.h"
 
 @import Mapbox;
+@import MapboxDirections;
 
 static double kInitialZoomLevel = 11;
 
@@ -40,6 +41,8 @@ static double kInitialZoomLevel = 11;
 
 	_longPressGR = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(_longPressedOnMap:)];
 	[_mapView addGestureRecognizer:_longPressGR];
+
+	MBDirections *directions = [MBDirections sharedDirections];
 }
 
 - (void)dealloc

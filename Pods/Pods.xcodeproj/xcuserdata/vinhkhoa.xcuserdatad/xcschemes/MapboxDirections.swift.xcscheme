@@ -14,10 +14,10 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "E3E594ADFF071C98FCF962141B2F6D2D"
-               BlueprintName = "Pods-VKMap"
+               BlueprintIdentifier = "7E73DF54EC4FD738944216F8EBB9FF6E"
+               BlueprintName = "MapboxDirections.swift"
                ReferencedContainer = "container:Pods.xcodeproj"
-               BuildableName = "libPods-VKMap.a">
+               BuildableName = "libMapboxDirections.swift.a">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
