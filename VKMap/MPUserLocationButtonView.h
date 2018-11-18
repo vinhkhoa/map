@@ -13,6 +13,6 @@
 @interface MPUserLocationButtonView : UIView
 
 - (instancetype)initWithFrame:(CGRect)frame
-										 delegate:(id<MPUserLocationButtonViewDelegate>)delegate;
+                     delegate:(id<MPUserLocationButtonViewDelegate>)delegate;
 
 @end

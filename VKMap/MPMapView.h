@@ -14,7 +14,7 @@
 @interface MPMapView : UIView
 
 - (instancetype)initWithFrame:(CGRect)frame
-										 delegate:(id<MPMapViewDelegate>)delegate;
+                     delegate:(id<MPMapViewDelegate>)delegate;
 
 - (void)setUserLocationCoordinate:(CLLocationCoordinate2D)coordinate;
 

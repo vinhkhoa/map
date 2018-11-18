@@ -4,42 +4,42 @@
 
 @implementation MPUserLocationButtonView
 {
-	id<MPUserLocationButtonViewDelegate> _delegate;
-	UITapGestureRecognizer *_tapGR;
+  id<MPUserLocationButtonViewDelegate> _delegate;
+  UITapGestureRecognizer *_tapGR;
 }
 
 - (instancetype)initWithFrame:(CGRect)frame
-										 delegate:(id<MPUserLocationButtonViewDelegate>)delegate
+                     delegate:(id<MPUserLocationButtonViewDelegate>)delegate
 {
-	if (self = [super initWithFrame:frame]) {
-		_delegate = delegate;
+  if (self = [super initWithFrame:frame]) {
+    _delegate = delegate;
 
-		const CGFloat size = CGRectGetWidth(frame);
-		self.backgroundColor = [UIColor whiteColor];
-		self.layer.cornerRadius = size / 2;
-		self.layer.shadowRadius = 5;
-		self.layer.shadowOpacity = 0.2;
+    const CGFloat size = CGRectGetWidth(frame);
+    self.backgroundColor = [UIColor whiteColor];
+    self.layer.cornerRadius = size / 2;
+    self.layer.shadowRadius = 5;
+    self.layer.shadowOpacity = 0.2;
 
-		UIImageView *const imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"crosshair"]];
-		imageView.frame = CGRectMake(size/4, size/4, size/2, size/2);
-		[self addSubview:imageView];
+    UIImageView *const imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"crosshair"]];
+    imageView.frame = CGRectMake(size/4, size/4, size/2, size/2);
+    [self addSubview:imageView];
 
-		_tapGR = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(_tapped:)];
-		[self addGestureRecognizer:_tapGR];
-	}
-	return self;
+    _tapGR = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(_tapped:)];
+    [self addGestureRecognizer:_tapGR];
+  }
+  return self;
 }
 
 - (void)dealloc
 {
-	[self removeGestureRecognizer:_tapGR];
+  [self removeGestureRecognizer:_tapGR];
 }
 
 - (void)_tapped:(id)sender
 {
-	if ([_delegate respondsToSelector:@selector(userLocationButtonViewDidTap:)]) {
-		[_delegate userLocationButtonViewDidTap:self];
-	}
+  if ([_delegate respondsToSelector:@selector(userLocationButtonViewDidTap:)]) {
+    [_delegate userLocationButtonViewDidTap:self];
+  }
 }
 
 @end
