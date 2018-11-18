@@ -1,15 +1,15 @@
 //  VKMap
 
-#import "MPUserLocationButtonView.h"
+#import "MPMapButton.h"
 
-@implementation MPUserLocationButtonView
+@implementation MPMapButton
 {
-  id<MPUserLocationButtonViewDelegate> _delegate;
+  id<MPMapButtonDelegate> _delegate;
   UITapGestureRecognizer *_tapGR;
 }
 
 - (instancetype)initWithFrame:(CGRect)frame
-                     delegate:(id<MPUserLocationButtonViewDelegate>)delegate
+                     delegate:(id<MPMapButtonDelegate>)delegate
 {
   if (self = [super initWithFrame:frame]) {
     _delegate = delegate;

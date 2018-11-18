@@ -1,13 +1,16 @@
 //  VKMap
 
 #import "MPMapView.h"
-#import "MPUserLocationButtonView.h"
+#import "MPMapButton.h"
 
 @import Mapbox;
 @import MapboxDirections;
 
 static const double kDefaultZoomLevel = 11;
-static const int kRouteZoomEdgePadding = 40;
+static const int kRouteZoomEdgePaddingTop = 60;
+static const int kRouteZoomEdgePaddingLeft = 40;
+static const int kRouteZoomEdgePaddingBottom = 60;
+static const int kRouteZoomEdgePaddingRight = 40;
 static const int kUserLocationButtonSize = 50;
 static const int kUserLocationMarginBottom = 40;
 static const int kUserLocationMarginRight = 20;
@@ -23,7 +26,7 @@ typedef NS_ENUM (NSInteger, PolylineTapResult) {
   PolylineTapResultAlternativeRoute
 };
 
-@interface MPMapView() <MGLMapViewDelegate, MPUserLocationButtonViewDelegate>
+@interface MPMapView() <MGLMapViewDelegate, MPMapButtonDelegate>
 @end
 
 @implementation MPMapView
@@ -70,8 +73,8 @@ typedef NS_ENUM (NSInteger, PolylineTapResult) {
     [_mapView addGestureRecognizer:_tapGR];
 
     // User location button
-    MPUserLocationButtonView *const userLocationButtonView =
-    [[MPUserLocationButtonView alloc]
+    MPMapButton *const userLocationButtonView =
+    [[MPMapButton alloc]
      initWithFrame:CGRectMake(CGRectGetWidth(self.bounds) - kUserLocationMarginRight - kUserLocationButtonSize,
                               CGRectGetHeight(self.bounds) - kUserLocationMarginBottom - kUserLocationButtonSize,
                               kUserLocationButtonSize,
@@ -190,12 +193,12 @@ static PolylineTapResult PolylineTapResultWhenTappingOnPolylineFeature(MGLPolyli
   return YES;
 }
 
-#pragma mark - MPUserLocationButtonViewDelegate
+#pragma mark - MPMapButtonDelegate
 
-- (void)userLocationButtonViewDidTap:(MPUserLocationButtonView *)userLocationButtonView
+- (void)userLocationButtonViewDidTap:(MPMapButton *)userLocationButtonView
 {
   [_mapView setCenterCoordinate:_mapView.userLocation.coordinate
-                      zoomLevel:kDefaultZoomLevel
+                      zoomLevel:_mapView.zoomLevel
                        animated:YES];
 }
 
@@ -291,7 +294,7 @@ static NSArray<MBRoute *> *SortedRoutesToPutSelectedRouteFirst(NSArray<MBRoute *
 
   [_mapView setVisibleCoordinates:routeCoordinates
                             count:route.coordinateCount
-                      edgePadding:UIEdgeInsetsMake(kRouteZoomEdgePadding, kRouteZoomEdgePadding, kRouteZoomEdgePadding, kRouteZoomEdgePadding)
+                      edgePadding:UIEdgeInsetsMake(kRouteZoomEdgePaddingTop, kRouteZoomEdgePaddingLeft, kRouteZoomEdgePaddingBottom, kRouteZoomEdgePaddingRight)
                          animated:YES];
 
   free(routeCoordinates);
