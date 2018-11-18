@@ -1,8 +1,8 @@
 //  VKMap
 
-#import "ViewController.h"
+#import "MPViewController.h"
 
-#import "UserLocationButtonView.h"
+#import "MPUserLocationButtonView.h"
 
 @import Mapbox;
 @import MapboxDirections;
@@ -16,10 +16,10 @@ static int kUserLocationMarginRight = 20;
 typedef void (^FindRoutesSuccessBlock)(NSArray<MBRoute *> *routes);
 typedef void (^FindRoutesFailureBlock)(NSError *error);
 
-@interface ViewController() <MGLMapViewDelegate, CLLocationManagerDelegate, UserLocationButtonViewDelegate>
+@interface MPViewController() <MGLMapViewDelegate, CLLocationManagerDelegate, MPUserLocationButtonViewDelegate>
 @end
 
-@implementation ViewController
+@implementation MPViewController
 {
 	MGLMapView *_mapView;
 	UILongPressGestureRecognizer *_longPressGR;
@@ -60,8 +60,8 @@ typedef void (^FindRoutesFailureBlock)(NSError *error);
 	[_mapView addGestureRecognizer:_longPressGR];
 
 	// User location button
-	UserLocationButtonView *const userLocationButtonView =
-	[[UserLocationButtonView alloc]
+	MPUserLocationButtonView *const userLocationButtonView =
+	[[MPUserLocationButtonView alloc]
 	 initWithFrame:CGRectMake(CGRectGetWidth(self.view.frame) - kUserLocationMarginRight - kUserLocationButtonSize,
 														CGRectGetHeight(self.view.frame) - kUserLocationMarginBottom - kUserLocationButtonSize,
 														kUserLocationButtonSize,
@@ -116,9 +116,9 @@ typedef void (^FindRoutesFailureBlock)(NSError *error);
 	return YES;
 }
 
-#pragma mark - UserLocationButtonViewDelegate
+#pragma mark - MPUserLocationButtonViewDelegate
 
-- (void)userLocationButtonViewDidTap:(UserLocationButtonView *)userLocationButtonView
+- (void)userLocationButtonViewDidTap:(MPUserLocationButtonView *)userLocationButtonView
 {
 	[_mapView setCenterCoordinate:_mapView.userLocation.coordinate
 											zoomLevel:kDefaultZoomLevel

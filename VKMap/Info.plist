@@ -4,6 +4,8 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>Map</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -20,6 +22,10 @@
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>MGLMapboxAccessToken</key>
+	<string>pk.eyJ1IjoibnZraG9hdHYiLCJhIjoiY2pva3NuZW4zMDV4dTNvbXRlbW45em9rZyJ9.Tjz6UeRY2kFnYYrszkfpxQ</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Shows your location on the map and helps improve OpenStreetMap.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -34,10 +40,6 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>MGLMapboxAccessToken</key>
-	<string>pk.eyJ1IjoibnZraG9hdHYiLCJhIjoiY2pva3NuZW4zMDV4dTNvbXRlbW45em9rZyJ9.Tjz6UeRY2kFnYYrszkfpxQ</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Shows your location on the map and helps improve OpenStreetMap.</string>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

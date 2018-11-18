@@ -8,13 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		8E0A0DA4219FA700006BAC87 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8E0A0DA3219FA700006BAC87 /* AppDelegate.m */; };
-		8E0A0DA7219FA700006BAC87 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8E0A0DA6219FA700006BAC87 /* ViewController.m */; };
+		8E0A0DA7219FA700006BAC87 /* MPViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8E0A0DA6219FA700006BAC87 /* MPViewController.m */; };
 		8E0A0DAA219FA700006BAC87 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8E0A0DA8219FA700006BAC87 /* Main.storyboard */; };
 		8E0A0DAC219FA700006BAC87 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8E0A0DAB219FA700006BAC87 /* Assets.xcassets */; };
 		8E0A0DAF219FA700006BAC87 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8E0A0DAD219FA700006BAC87 /* LaunchScreen.storyboard */; };
 		8E0A0DB2219FA700006BAC87 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8E0A0DB1219FA700006BAC87 /* main.m */; };
 		8EE6F83E219FF05600793D8C /* empty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EE6F83D219FF05600793D8C /* empty.swift */; };
-		8EE6F84121A0146F00793D8C /* UserLocationButtonView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8EE6F84021A0146F00793D8C /* UserLocationButtonView.m */; };
+		8EE6F84121A0146F00793D8C /* MPUserLocationButtonView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8EE6F84021A0146F00793D8C /* MPUserLocationButtonView.m */; };
 		986AFF7A0208886CCACE93EC /* libPods-VKMap.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B4D13F5939EB9AEB26AE30 /* libPods-VKMap.a */; };
 /* End PBXBuildFile section */
 
@@ -23,8 +23,8 @@
 		8E0A0D9F219FA700006BAC87 /* VKMap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VKMap.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8E0A0DA2219FA700006BAC87 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		8E0A0DA3219FA700006BAC87 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		8E0A0DA5219FA700006BAC87 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		8E0A0DA6219FA700006BAC87 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		8E0A0DA5219FA700006BAC87 /* MPViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPViewController.h; sourceTree = "<group>"; };
+		8E0A0DA6219FA700006BAC87 /* MPViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPViewController.m; sourceTree = "<group>"; };
 		8E0A0DA9219FA700006BAC87 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		8E0A0DAB219FA700006BAC87 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8E0A0DAE219FA700006BAC87 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -32,8 +32,8 @@
 		8E0A0DB1219FA700006BAC87 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		8EE6F83B219FF05500793D8C /* VKMap-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VKMap-Bridging-Header.h"; sourceTree = "<group>"; };
 		8EE6F83D219FF05600793D8C /* empty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = empty.swift; sourceTree = "<group>"; };
-		8EE6F83F21A0146F00793D8C /* UserLocationButtonView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UserLocationButtonView.h; sourceTree = "<group>"; };
-		8EE6F84021A0146F00793D8C /* UserLocationButtonView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UserLocationButtonView.m; sourceTree = "<group>"; };
+		8EE6F83F21A0146F00793D8C /* MPUserLocationButtonView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPUserLocationButtonView.h; sourceTree = "<group>"; };
+		8EE6F84021A0146F00793D8C /* MPUserLocationButtonView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPUserLocationButtonView.m; sourceTree = "<group>"; };
 		96B4D13F5939EB9AEB26AE30 /* libPods-VKMap.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VKMap.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		980C5068E0364DF919893C7A /* Pods-VKMap.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VKMap.release.xcconfig"; path = "Pods/Target Support Files/Pods-VKMap/Pods-VKMap.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -82,8 +82,8 @@
 			children = (
 				8E0A0DA2219FA700006BAC87 /* AppDelegate.h */,
 				8E0A0DA3219FA700006BAC87 /* AppDelegate.m */,
-				8E0A0DA5219FA700006BAC87 /* ViewController.h */,
-				8E0A0DA6219FA700006BAC87 /* ViewController.m */,
+				8E0A0DA5219FA700006BAC87 /* MPViewController.h */,
+				8E0A0DA6219FA700006BAC87 /* MPViewController.m */,
 				8E0A0DA8219FA700006BAC87 /* Main.storyboard */,
 				8E0A0DAB219FA700006BAC87 /* Assets.xcassets */,
 				8E0A0DAD219FA700006BAC87 /* LaunchScreen.storyboard */,
@@ -91,8 +91,8 @@
 				8E0A0DB1219FA700006BAC87 /* main.m */,
 				8EE6F83D219FF05600793D8C /* empty.swift */,
 				8EE6F83B219FF05500793D8C /* VKMap-Bridging-Header.h */,
-				8EE6F83F21A0146F00793D8C /* UserLocationButtonView.h */,
-				8EE6F84021A0146F00793D8C /* UserLocationButtonView.m */,
+				8EE6F83F21A0146F00793D8C /* MPUserLocationButtonView.h */,
+				8EE6F84021A0146F00793D8C /* MPUserLocationButtonView.m */,
 			);
 			path = VKMap;
 			sourceTree = "<group>";
@@ -220,11 +220,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8E0A0DA7219FA700006BAC87 /* ViewController.m in Sources */,
+				8E0A0DA7219FA700006BAC87 /* MPViewController.m in Sources */,
 				8EE6F83E219FF05600793D8C /* empty.swift in Sources */,
 				8E0A0DB2219FA700006BAC87 /* main.m in Sources */,
 				8E0A0DA4219FA700006BAC87 /* AppDelegate.m in Sources */,
-				8EE6F84121A0146F00793D8C /* UserLocationButtonView.m in Sources */,
+				8EE6F84121A0146F00793D8C /* MPUserLocationButtonView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
