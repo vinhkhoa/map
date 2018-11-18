@@ -6,14 +6,22 @@
 @import Mapbox;
 @import MapboxDirections;
 
-static double kDefaultZoomLevel = 11;
-static int kRouteZoomEdgePadding = 40;
-static int kUserLocationButtonSize = 50;
-static int kUserLocationMarginBottom = 40;
-static int kUserLocationMarginRight = 20;
+static const double kDefaultZoomLevel = 11;
+static const int kRouteZoomEdgePadding = 40;
+static const int kUserLocationButtonSize = 50;
+static const int kUserLocationMarginBottom = 40;
+static const int kUserLocationMarginRight = 20;
+static NSString *const kSelectedRouteFeatureIdentifier = @"selected_route";
+static NSString *const kAlternativeRouteFeatureIdentifier = @"alternative_route";
 
 typedef void (^FindRoutesSuccessBlock)(NSArray<MBRoute *> *routes);
 typedef void (^FindRoutesFailureBlock)(NSError *error);
+
+typedef NS_ENUM (NSInteger, PolylineTapResult) {
+	PolylineTapResultNotARoute,
+	PolylineTapResultSelectedRoute,
+	PolylineTapResultAlternativeRoute
+};
 
 @interface MPMapView() <MGLMapViewDelegate, MPUserLocationButtonViewDelegate>
 @end
@@ -23,10 +31,12 @@ typedef void (^FindRoutesFailureBlock)(NSError *error);
 	MGLMapView *_mapView;
 	BOOL _didZoomToUserLocation;
 	UILongPressGestureRecognizer *_longPressGR;
+	UITapGestureRecognizer *_tapGR;
 	NSMutableArray<id<MGLAnnotation>> *_annotations;
 	NSMutableArray<MGLSource *> *_mapSources;
 	NSMutableArray<MGLStyleLayer *> *_mapLayers;
 	id<MPMapViewDelegate> _delegate;
+	MGLPolylineFeature *_selectedRouteFeature;
 }
 
 - (instancetype)initWithFrame:(CGRect)frame
@@ -45,8 +55,18 @@ typedef void (^FindRoutesFailureBlock)(NSError *error);
 		[self addSubview:_mapView];
 		_mapView.delegate = self;
 
+		// Long press
 		_longPressGR = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(_longPressedOnMap:)];
 		[_mapView addGestureRecognizer:_longPressGR];
+
+		// Tap
+		_tapGR = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(_tappedOnMap:)];
+		for (UIGestureRecognizer *recognizer in _mapView.gestureRecognizers) {
+			if ([recognizer isKindOfClass:[UITapGestureRecognizer class]]) {
+				[_tapGR requireGestureRecognizerToFail:recognizer];
+			}
+		}
+		[_mapView addGestureRecognizer:_tapGR];
 
 		// User location button
 		MPUserLocationButtonView *const userLocationButtonView =
@@ -65,6 +85,7 @@ typedef void (^FindRoutesFailureBlock)(NSError *error);
 - (void)dealloc
 {
 	[_mapView removeGestureRecognizer:_longPressGR];
+	[_mapView removeGestureRecognizer:_tapGR];
 }
 
 #pragma mark - Public
@@ -83,6 +104,21 @@ typedef void (^FindRoutesFailureBlock)(NSError *error);
 
 #pragma mark - Map Gesture
 
+static PolylineTapResult PolylineTapResultWhenTappingOnPolylineFeature(MGLPolylineFeature *feature)
+{
+	if ([feature.identifier isKindOfClass:[NSString class]]) {
+		if ([feature.identifier isEqualToString:kSelectedRouteFeatureIdentifier]) {
+			return PolylineTapResultSelectedRoute;
+		} else if ([feature.identifier isEqualToString:kAlternativeRouteFeatureIdentifier]) {
+			return PolylineTapResultAlternativeRoute;
+		} else {
+			return PolylineTapResultNotARoute;
+		}
+	} else {
+		return PolylineTapResultNotARoute;
+	}
+}
+
 - (void)_longPressedOnMap:(UILongPressGestureRecognizer *)longPressGR
 {
 	if (longPressGR.state == UIGestureRecognizerStateBegan) {
@@ -90,6 +126,59 @@ typedef void (^FindRoutesFailureBlock)(NSError *error);
 		const CLLocationCoordinate2D coordinate = [_mapView convertPoint:location toCoordinateFromView:_mapView];
 		[self _addDestinationAtCoordinate:coordinate];
 	}
+}
+
+- (void)_tappedOnMap:(UITapGestureRecognizer *)tapGR
+{
+	if (tapGR.state == UIGestureRecognizerStateEnded) {
+		const CGPoint point = [tapGR locationInView:tapGR.view];
+
+		BOOL didTapOnRoute;
+
+		// Check if user exactly tapped on a route
+		for (id<MGLFeature> feature in [_mapView visibleFeaturesAtPoint:point]) {
+			if ([feature isKindOfClass:[MGLPolylineFeature class]]) {
+				didTapOnRoute = [self _handleTapOnPolylineFeatureIfThisIsARoute:(MGLPolylineFeature *)feature];
+				if (didTapOnRoute) {
+					return;
+				}
+			}
+		}
+
+		// Check if user roughly tapped on a route
+		const CGRect pointRect = {point, CGSizeZero};
+		const CGRect touchRect = CGRectInset(pointRect, -5.0, -5.0);
+		for (id<MGLFeature> feature in [_mapView visibleFeaturesInRect:touchRect]) {
+			if ([feature isKindOfClass:[MGLPolylineFeature class]]) {
+				didTapOnRoute = [self _handleTapOnPolylineFeatureIfThisIsARoute:(MGLPolylineFeature *)feature];
+				if (didTapOnRoute) {
+					return;
+				}
+			}
+		}
+
+		// If no routes were tapped on, deselect the selected annotation, if any.
+		[_mapView deselectAnnotation:_mapView.selectedAnnotations.firstObject animated:YES];
+	}
+}
+
+- (BOOL)_handleTapOnPolylineFeatureIfThisIsARoute:(MGLPolylineFeature *)feature
+{
+	const PolylineTapResult tapResult = PolylineTapResultWhenTappingOnPolylineFeature((MGLPolylineFeature *)feature);
+	switch (tapResult) {
+		case PolylineTapResultAlternativeRoute:
+			[self _handleTapOnPolylineFeatureOfAlternativeRoute:feature];
+			return YES;
+		case PolylineTapResultSelectedRoute:
+			return YES;
+		case PolylineTapResultNotARoute:
+			return NO;
+	}
+}
+
+- (void)_handleTapOnPolylineFeatureOfAlternativeRoute:(MGLPolylineFeature *)feature
+{
+	
 }
 
 #pragma mark - MGLMapViewDelegate
@@ -169,7 +258,7 @@ typedef void (^FindRoutesFailureBlock)(NSError *error);
 {
 	if (route.coordinateCount) {
 		// Add route source and layer to map
-		MGLShapeSource *const source = SourceForRoute(route);
+		MGLShapeSource *const source = SourceForRoute(route, selected);
 		MGLLineStyleLayer *const layer = LineLayerForSource(source, route.legs.firstObject.name, selected);
 
 		[_mapView.style addSource:source];
@@ -180,6 +269,7 @@ typedef void (^FindRoutesFailureBlock)(NSError *error);
 		// Zoom in if selected
 		if (selected) {
 			[self _zoomToRoute:route];
+			//_selectedRouteFeature = a.firstObject;
 		}
 	}
 }
@@ -232,12 +322,13 @@ static void FindRoutes(CLLocationCoordinate2D fromLocation,
 	 }];
 }
 
-static MGLShapeSource *SourceForRoute(MBRoute *route)
+static MGLShapeSource *SourceForRoute(MBRoute *route, BOOL selected)
 {
 	CLLocationCoordinate2D *routeCoordinates = malloc(route.coordinateCount * sizeof(CLLocationCoordinate2D));
 	[route getCoordinates:routeCoordinates];
 	MGLPolylineFeature *const line = [MGLPolylineFeature polylineWithCoordinates:routeCoordinates
 																																				 count:route.coordinateCount];
+	line.identifier = selected ? kSelectedRouteFeatureIdentifier : kAlternativeRouteFeatureIdentifier;
 	free(routeCoordinates);
 
 	return [[MGLShapeSource alloc] initWithIdentifier:route.legs.firstObject.name
