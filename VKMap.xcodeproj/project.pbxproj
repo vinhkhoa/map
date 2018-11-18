@@ -15,6 +15,7 @@
 		8E0A0DB2219FA700006BAC87 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8E0A0DB1219FA700006BAC87 /* main.m */; };
 		8EE6F83E219FF05600793D8C /* empty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EE6F83D219FF05600793D8C /* empty.swift */; };
 		8EE6F84121A0146F00793D8C /* MPUserLocationButtonView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8EE6F84021A0146F00793D8C /* MPUserLocationButtonView.m */; };
+		8EE6F84421A1497A00793D8C /* MPMapView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8EE6F84321A1497A00793D8C /* MPMapView.m */; };
 		986AFF7A0208886CCACE93EC /* libPods-VKMap.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 96B4D13F5939EB9AEB26AE30 /* libPods-VKMap.a */; };
 /* End PBXBuildFile section */
 
@@ -34,6 +35,8 @@
 		8EE6F83D219FF05600793D8C /* empty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = empty.swift; sourceTree = "<group>"; };
 		8EE6F83F21A0146F00793D8C /* MPUserLocationButtonView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPUserLocationButtonView.h; sourceTree = "<group>"; };
 		8EE6F84021A0146F00793D8C /* MPUserLocationButtonView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPUserLocationButtonView.m; sourceTree = "<group>"; };
+		8EE6F84221A1497A00793D8C /* MPMapView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPMapView.h; sourceTree = "<group>"; };
+		8EE6F84321A1497A00793D8C /* MPMapView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPMapView.m; sourceTree = "<group>"; };
 		96B4D13F5939EB9AEB26AE30 /* libPods-VKMap.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VKMap.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		980C5068E0364DF919893C7A /* Pods-VKMap.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VKMap.release.xcconfig"; path = "Pods/Target Support Files/Pods-VKMap/Pods-VKMap.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -93,6 +96,8 @@
 				8EE6F83B219FF05500793D8C /* VKMap-Bridging-Header.h */,
 				8EE6F83F21A0146F00793D8C /* MPUserLocationButtonView.h */,
 				8EE6F84021A0146F00793D8C /* MPUserLocationButtonView.m */,
+				8EE6F84221A1497A00793D8C /* MPMapView.h */,
+				8EE6F84321A1497A00793D8C /* MPMapView.m */,
 			);
 			path = VKMap;
 			sourceTree = "<group>";
@@ -224,6 +229,7 @@
 				8EE6F83E219FF05600793D8C /* empty.swift in Sources */,
 				8E0A0DB2219FA700006BAC87 /* main.m in Sources */,
 				8E0A0DA4219FA700006BAC87 /* AppDelegate.m in Sources */,
+				8EE6F84421A1497A00793D8C /* MPMapView.m in Sources */,
 				8EE6F84121A0146F00793D8C /* MPUserLocationButtonView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
