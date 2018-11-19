@@ -9,6 +9,7 @@
 }
 
 - (instancetype)initWithFrame:(CGRect)frame
+                    imageName:(NSString *)imageName
                      delegate:(id<MPMapButtonDelegate>)delegate
 {
   if (self = [super initWithFrame:frame]) {
@@ -20,7 +21,7 @@
     self.layer.shadowRadius = 5;
     self.layer.shadowOpacity = 0.2;
 
-    UIImageView *const imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"crosshair"]];
+    UIImageView *const imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:imageName]];
     imageView.frame = CGRectMake(size/4, size/4, size/2, size/2);
     [self addSubview:imageView];
 
@@ -37,8 +38,8 @@
 
 - (void)_tapped:(id)sender
 {
-  if ([_delegate respondsToSelector:@selector(userLocationButtonViewDidTap:)]) {
-    [_delegate userLocationButtonViewDidTap:self];
+  if ([_delegate respondsToSelector:@selector(mapButtonDidTap:)]) {
+    [_delegate mapButtonDidTap:self];
   }
 }
 

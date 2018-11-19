@@ -11,9 +11,11 @@ static const int kRouteZoomEdgePaddingTop = 60;
 static const int kRouteZoomEdgePaddingLeft = 40;
 static const int kRouteZoomEdgePaddingBottom = 60;
 static const int kRouteZoomEdgePaddingRight = 40;
-static const int kUserLocationButtonSize = 50;
+static const int kMapButtonSize = 50;
 static const int kUserLocationMarginBottom = 40;
 static const int kUserLocationMarginRight = 20;
+static const int kSettingsButtonMarginTop = 60;
+static const int kSettingsButtonMarginRight = 20;
 static NSString *const kAttributeKeyIsRoute = @"is_route";
 static NSString *const kAttributeKeyIsSelectedRoute = @"is_selected_route";
 
@@ -41,6 +43,7 @@ typedef NS_ENUM (NSInteger, PolylineTapResult) {
   id<MPMapViewDelegate> _delegate;
   NSString *_selectedRouteIdentifier;
   NSArray<MBRoute *> *_routes;
+  MPMapButton *_userLocationButton, *_settingsButton;
 }
 
 - (instancetype)initWithFrame:(CGRect)frame
@@ -73,15 +76,26 @@ typedef NS_ENUM (NSInteger, PolylineTapResult) {
     [_mapView addGestureRecognizer:_tapGR];
 
     // User location button
-    MPMapButton *const userLocationButtonView =
-    [[MPMapButton alloc]
-     initWithFrame:CGRectMake(CGRectGetWidth(self.bounds) - kUserLocationMarginRight - kUserLocationButtonSize,
-                              CGRectGetHeight(self.bounds) - kUserLocationMarginBottom - kUserLocationButtonSize,
-                              kUserLocationButtonSize,
-                              kUserLocationButtonSize)
-     delegate:self];
-    userLocationButtonView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin;
-    [self addSubview:userLocationButtonView];
+    _userLocationButton = [[MPMapButton alloc]
+                           initWithFrame:CGRectMake(CGRectGetWidth(self.bounds) - kUserLocationMarginRight - kMapButtonSize,
+                                                    CGRectGetHeight(self.bounds) - kUserLocationMarginBottom - kMapButtonSize,
+                                                    kMapButtonSize,
+                                                    kMapButtonSize)
+                           imageName:@"crosshair"
+                           delegate:self];
+    _userLocationButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin;
+    [self addSubview:_userLocationButton];
+
+    // Settings button
+    _settingsButton = [[MPMapButton alloc]
+                       initWithFrame:CGRectMake(CGRectGetWidth(self.bounds) - kSettingsButtonMarginRight - kMapButtonSize,
+                                                kSettingsButtonMarginTop,
+                                                kMapButtonSize,
+                                                kMapButtonSize)
+                       imageName:@"settings"
+                       delegate:self];
+    _settingsButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin;
+    [self addSubview:_settingsButton];
   }
   return self;
 }
@@ -195,11 +209,15 @@ static PolylineTapResult PolylineTapResultWhenTappingOnPolylineFeature(MGLPolyli
 
 #pragma mark - MPMapButtonDelegate
 
-- (void)userLocationButtonViewDidTap:(MPMapButton *)userLocationButtonView
+- (void)mapButtonDidTap:(MPMapButton *)mapButton
 {
-  [_mapView setCenterCoordinate:_mapView.userLocation.coordinate
-                      zoomLevel:_mapView.zoomLevel
-                       animated:YES];
+  if (mapButton == _userLocationButton) {
+    [_mapView setCenterCoordinate:_mapView.userLocation.coordinate
+                        zoomLevel:_mapView.zoomLevel
+                         animated:YES];
+  } else if (mapButton == _settingsButton) {
+    NSLog(@"tapped settings");
+  }
 }
 
 #pragma mark - Private

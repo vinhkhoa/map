@@ -6,13 +6,14 @@
 
 @protocol MPMapButtonDelegate <NSObject>
 
-- (void)userLocationButtonViewDidTap:(MPMapButton *)userLocationButtonView;
+- (void)mapButtonDidTap:(MPMapButton *)mapButton;
 
 @end
 
 @interface MPMapButton : UIView
 
 - (instancetype)initWithFrame:(CGRect)frame
+                    imageName:(NSString *)imageName
                      delegate:(id<MPMapButtonDelegate>)delegate;
 
 @end
