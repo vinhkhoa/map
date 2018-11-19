@@ -2,6 +2,7 @@
 
 #import "MPViewController.h"
 #import "MPMapView.h"
+#import "MPMapStylesView.h"
 
 @interface MPViewController() <CLLocationManagerDelegate, MPMapViewDelegate>
 @end
@@ -31,6 +32,13 @@
   } else {
     [_locationManager requestWhenInUseAuthorization];
   }
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+  [super viewDidAppear:animated];
+
+  [_mapView.mapStylesView highlightDefaultMapStyle];
 }
 
 #pragma mark - CLLocationManagerDelegate
@@ -63,6 +71,16 @@
                                                       [weakSelf dismissViewControllerAnimated:YES completion:nil];
                                                     }]];
   [self presentViewController:alertController animated:YES completion:nil];
+}
+
+#pragma mark - Rotation
+
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
+{
+  MPMapStylesView *const mapStylesView = _mapView.mapStylesView;
+  [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+    [mapStylesView invalidateLayout];
+  } completion:nil];
 }
 
 /*static NSString *TravelTimeLabelForRoute(MBRoute *route)

@@ -1,0 +1,7 @@
+%type name=MPMapStyleIdentifier file=MPMapStyleIdentifiers canForwardDeclare=false
+MPMapStyleSelection {
+  MPMapStyleIdentifier(NSInteger) identifier
+  NSString *name
+  NSString *styleURL
+  NSString *imageName
+}

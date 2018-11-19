@@ -13,6 +13,10 @@
 		8E0A0DAC219FA700006BAC87 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8E0A0DAB219FA700006BAC87 /* Assets.xcassets */; };
 		8E0A0DAF219FA700006BAC87 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8E0A0DAD219FA700006BAC87 /* LaunchScreen.storyboard */; };
 		8E0A0DB2219FA700006BAC87 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8E0A0DB1219FA700006BAC87 /* main.m */; };
+		8E42BDA921A2AFCB00DA8202 /* MPMapStylesView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8E42BDA221A2AFCA00DA8202 /* MPMapStylesView.m */; };
+		8E42BDAA21A2AFCB00DA8202 /* MPMapStyleCellCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8E42BDA421A2AFCA00DA8202 /* MPMapStyleCellCollectionViewCell.m */; };
+		8E42BDAB21A2AFCB00DA8202 /* MPMapStyleSelection.m in Sources */ = {isa = PBXBuildFile; fileRef = 8E42BDA621A2AFCA00DA8202 /* MPMapStyleSelection.m */; };
+		8E42BDAC21A2AFCB00DA8202 /* MPMapStyleSelection.value in Resources */ = {isa = PBXBuildFile; fileRef = 8E42BDA821A2AFCB00DA8202 /* MPMapStyleSelection.value */; };
 		8EE6F83E219FF05600793D8C /* empty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EE6F83D219FF05600793D8C /* empty.swift */; };
 		8EE6F84421A1497A00793D8C /* MPMapView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8EE6F84321A1497A00793D8C /* MPMapView.m */; };
 		8EE6F84721A2201600793D8C /* MPMapButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 8EE6F84521A2201600793D8C /* MPMapButton.m */; };
@@ -31,6 +35,14 @@
 		8E0A0DAE219FA700006BAC87 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8E0A0DB0219FA700006BAC87 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8E0A0DB1219FA700006BAC87 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		8E42BDA121A2AFCA00DA8202 /* MPMapStyleIdentifiers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMapStyleIdentifiers.h; sourceTree = "<group>"; };
+		8E42BDA221A2AFCA00DA8202 /* MPMapStylesView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMapStylesView.m; sourceTree = "<group>"; };
+		8E42BDA321A2AFCA00DA8202 /* MPMapStylesView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMapStylesView.h; sourceTree = "<group>"; };
+		8E42BDA421A2AFCA00DA8202 /* MPMapStyleCellCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMapStyleCellCollectionViewCell.m; sourceTree = "<group>"; };
+		8E42BDA521A2AFCA00DA8202 /* MPMapStyleCellCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMapStyleCellCollectionViewCell.h; sourceTree = "<group>"; };
+		8E42BDA621A2AFCA00DA8202 /* MPMapStyleSelection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMapStyleSelection.m; sourceTree = "<group>"; };
+		8E42BDA721A2AFCB00DA8202 /* MPMapStyleSelection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMapStyleSelection.h; sourceTree = "<group>"; };
+		8E42BDA821A2AFCB00DA8202 /* MPMapStyleSelection.value */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MPMapStyleSelection.value; sourceTree = "<group>"; };
 		8EE6F83B219FF05500793D8C /* VKMap-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VKMap-Bridging-Header.h"; sourceTree = "<group>"; };
 		8EE6F83D219FF05600793D8C /* empty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = empty.swift; sourceTree = "<group>"; };
 		8EE6F84221A1497A00793D8C /* MPMapView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPMapView.h; sourceTree = "<group>"; };
@@ -96,10 +108,26 @@
 				8EE6F83B219FF05500793D8C /* VKMap-Bridging-Header.h */,
 				8EE6F84621A2201600793D8C /* MPMapButton.h */,
 				8EE6F84521A2201600793D8C /* MPMapButton.m */,
+				8E42BDAD21A2AFD500DA8202 /* Map Styles */,
 				8EE6F84221A1497A00793D8C /* MPMapView.h */,
 				8EE6F84321A1497A00793D8C /* MPMapView.m */,
 			);
 			path = VKMap;
+			sourceTree = "<group>";
+		};
+		8E42BDAD21A2AFD500DA8202 /* Map Styles */ = {
+			isa = PBXGroup;
+			children = (
+				8E42BDA521A2AFCA00DA8202 /* MPMapStyleCellCollectionViewCell.h */,
+				8E42BDA421A2AFCA00DA8202 /* MPMapStyleCellCollectionViewCell.m */,
+				8E42BDA121A2AFCA00DA8202 /* MPMapStyleIdentifiers.h */,
+				8E42BDA721A2AFCB00DA8202 /* MPMapStyleSelection.h */,
+				8E42BDA621A2AFCA00DA8202 /* MPMapStyleSelection.m */,
+				8E42BDA821A2AFCB00DA8202 /* MPMapStyleSelection.value */,
+				8E42BDA321A2AFCA00DA8202 /* MPMapStylesView.h */,
+				8E42BDA221A2AFCA00DA8202 /* MPMapStylesView.m */,
+			);
+			name = "Map Styles";
 			sourceTree = "<group>";
 		};
 		E3B2385E26AB8795D6C1F9C8 /* Frameworks */ = {
@@ -173,6 +201,7 @@
 			files = (
 				8E0A0DAF219FA700006BAC87 /* LaunchScreen.storyboard in Resources */,
 				8E0A0DAC219FA700006BAC87 /* Assets.xcassets in Resources */,
+				8E42BDAC21A2AFCB00DA8202 /* MPMapStyleSelection.value in Resources */,
 				8E0A0DAA219FA700006BAC87 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -225,9 +254,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8E42BDAA21A2AFCB00DA8202 /* MPMapStyleCellCollectionViewCell.m in Sources */,
+				8E42BDA921A2AFCB00DA8202 /* MPMapStylesView.m in Sources */,
 				8E0A0DA7219FA700006BAC87 /* MPViewController.m in Sources */,
 				8EE6F83E219FF05600793D8C /* empty.swift in Sources */,
 				8E0A0DB2219FA700006BAC87 /* main.m in Sources */,
+				8E42BDAB21A2AFCB00DA8202 /* MPMapStyleSelection.m in Sources */,
 				8EE6F84721A2201600793D8C /* MPMapButton.m in Sources */,
 				8E0A0DA4219FA700006BAC87 /* AppDelegate.m in Sources */,
 				8EE6F84421A1497A00793D8C /* MPMapView.m in Sources */,

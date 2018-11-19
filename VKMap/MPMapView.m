@@ -2,22 +2,28 @@
 
 #import "MPMapView.h"
 #import "MPMapButton.h"
+#import "MPMapStylesView.h"
 
 @import Mapbox;
 @import MapboxDirections;
 
 static const double kDefaultZoomLevel = 11;
+
 static const int kRouteZoomEdgePaddingTop = 60;
 static const int kRouteZoomEdgePaddingLeft = 40;
 static const int kRouteZoomEdgePaddingBottom = 60;
 static const int kRouteZoomEdgePaddingRight = 40;
+
 static const int kMapButtonSize = 50;
 static const int kUserLocationMarginBottom = 40;
 static const int kUserLocationMarginRight = 20;
 static const int kSettingsButtonMarginTop = 60;
 static const int kSettingsButtonMarginRight = 20;
+
 static NSString *const kAttributeKeyIsRoute = @"is_route";
 static NSString *const kAttributeKeyIsSelectedRoute = @"is_selected_route";
+
+static const int kMapStylesViewHeight = 200;
 
 typedef void (^FindRoutesSuccessBlock)(NSArray<MBRoute *> *routes);
 typedef void (^FindRoutesFailureBlock)(NSError *error);
@@ -28,7 +34,7 @@ typedef NS_ENUM (NSInteger, PolylineTapResult) {
   PolylineTapResultAlternativeRoute
 };
 
-@interface MPMapView() <MGLMapViewDelegate, MPMapButtonDelegate>
+@interface MPMapView() <MGLMapViewDelegate, MPMapButtonDelegate, MPMapStylesViewDelegate>
 @end
 
 @implementation MPMapView
@@ -46,6 +52,8 @@ typedef NS_ENUM (NSInteger, PolylineTapResult) {
   MPMapButton *_userLocationButton, *_settingsButton;
 }
 
+@synthesize mapStylesView = _mapStylesView;
+
 - (instancetype)initWithFrame:(CGRect)frame
                      delegate:(id<MPMapViewDelegate>)delegate
 {
@@ -56,8 +64,7 @@ typedef NS_ENUM (NSInteger, PolylineTapResult) {
     _mapLayers = [NSMutableArray array];
 
     // Map view
-    NSURL *const url = [NSURL URLWithString:@"mapbox://styles/mapbox/streets-v10"];
-    _mapView = [[MGLMapView alloc] initWithFrame:self.bounds styleURL:url];
+    _mapView = [[MGLMapView alloc] initWithFrame:self.bounds styleURL:[NSURL URLWithString:MPDefaultMapStyleURL()]];
     _mapView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self addSubview:_mapView];
     _mapView.delegate = self;
@@ -96,6 +103,17 @@ typedef NS_ENUM (NSInteger, PolylineTapResult) {
                        delegate:self];
     _settingsButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin;
     [self addSubview:_settingsButton];
+
+    // Map Styles Change
+    _mapStylesView = [[MPMapStylesView alloc]
+                      initWithFrame:CGRectMake(0,
+                                               CGRectGetHeight(self.bounds) - kMapStylesViewHeight,
+                                               CGRectGetWidth(self.bounds),
+                                               kMapStylesViewHeight)
+                      delegate:self];
+    _mapStylesView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
+    [self addSubview:_mapStylesView];
+    [_mapStylesView setHidden:YES];
   }
   return self;
 }
@@ -216,7 +234,29 @@ static PolylineTapResult PolylineTapResultWhenTappingOnPolylineFeature(MGLPolyli
                         zoomLevel:_mapView.zoomLevel
                          animated:YES];
   } else if (mapButton == _settingsButton) {
-    NSLog(@"tapped settings");
+    if (_mapStylesView.hidden) {
+      [self _showMapStylesViewAnimated:YES];
+    } else {
+      [self _hideMapStylesViewAnimated:YES];
+    }
+  }
+}
+
+#pragma mark - MPMapStylesViewDelegate
+
+- (void)mapStylesView:(MPMapStylesView *)mapStylesView didSelectMapStyleURL:(NSString *)mapStyleURL
+{
+  if (![_mapView.styleURL.absoluteString isEqualToString:mapStyleURL]) {
+    _mapView.styleURL = [NSURL URLWithString:mapStyleURL];
+
+    // WHENEVER I CHANGE THE MAP STYLEURL, ALL THE ROUTES WILL BE CLEARED
+    // SO THIS IS A HACK TO SHOW THEM AGAIN.
+    // IDEALLY WE SHOULD HOOK THIS "RE-SHOW ROUTES" INTO THE CALLBACK AFTER STYLEURL HAS BEEN UPDATED
+    // BUT I DON'T KNOW HOW TO DO THAT OR WHETHER THAT API EVEN EXISTS
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+      [self _removeRoutesOnMap];
+      [self _displayCurrentRoutes];
+    });
   }
 }
 
@@ -338,6 +378,59 @@ static NSArray<MBRoute *> *SortedRoutesToPutSelectedRouteFirst(NSArray<MBRoute *
   }
 }
 
+#pragma mark - Map Styles
+
+- (void)_showMapStylesViewAnimated:(BOOL)animated
+{
+  const CGRect startFrame = CGRectMake(0,
+                                       CGRectGetHeight(self.bounds) + kMapStylesViewHeight,
+                                       CGRectGetWidth(self.bounds),
+                                       kMapStylesViewHeight);
+  const CGRect endFrame = CGRectMake(0,
+                                     CGRectGetHeight(self.bounds) - kMapStylesViewHeight,
+                                     CGRectGetWidth(self.bounds),
+                                     kMapStylesViewHeight);
+  _mapStylesView.frame = startFrame;
+  _mapStylesView.hidden = NO;
+
+  if (animated) {
+    [UIView
+     animateWithDuration:0.4
+     delay:0
+     usingSpringWithDamping:0.87
+     initialSpringVelocity:0
+     options:UIViewAnimationOptionCurveEaseInOut
+     animations:^{
+       _mapStylesView.frame = endFrame;
+     }
+     completion:nil];
+  } else {
+    _mapStylesView.frame = endFrame;
+  }
+}
+
+- (void)_hideMapStylesViewAnimated:(BOOL)animated
+{
+  const CGRect endFrame = CGRectMake(0,
+                                     CGRectGetHeight(self.bounds) + kMapStylesViewHeight,
+                                     CGRectGetWidth(self.bounds),
+                                     kMapStylesViewHeight);
+  if (animated) {
+    [UIView
+     animateWithDuration:0.3
+     delay:0
+     options:UIViewAnimationOptionCurveEaseOut
+     animations:^{
+       _mapStylesView.frame = endFrame;
+     }
+     completion:^(BOOL finished) {
+       _mapStylesView.hidden = YES;
+     }];
+  } else {
+    _mapStylesView.frame = endFrame;
+  }
+}
+
 #pragma mark - Helpers
 
 static void FindRoutes(CLLocationCoordinate2D fromLocation,
@@ -373,9 +466,6 @@ static void FindRoutes(CLLocationCoordinate2D fromLocation,
    }];
 }
 
-/**
- Create source for the specified route
- */
 static MGLShapeSource *SourceForRoute(MBRoute *route, BOOL selected)
 {
   // Get coordinates
@@ -398,9 +488,6 @@ static MGLShapeSource *SourceForRoute(MBRoute *route, BOOL selected)
                                             options:nil];
 }
 
-/**
- Create style layer for specified source
- */
 static MGLLineStyleLayer *LineStyleLayerForSource(MGLShapeSource *source,
                                                   NSString *identifier,
                                                   BOOL selected)

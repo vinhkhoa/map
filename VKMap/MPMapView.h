@@ -4,6 +4,7 @@
 #import <CoreLocation/CoreLocation.h>
 
 @class MPMapView;
+@class MPMapStylesView;
 
 @protocol MPMapViewDelegate <NSObject>
 
@@ -12,6 +13,8 @@
 @end
 
 @interface MPMapView : UIView
+
+@property (strong, nonatomic, readonly) MPMapStylesView *mapStylesView;
 
 - (instancetype)initWithFrame:(CGRect)frame
                      delegate:(id<MPMapViewDelegate>)delegate;
