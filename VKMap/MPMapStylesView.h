@@ -17,7 +17,6 @@ extern NSString *MPDefaultMapStyleURL(void);
 
 - (instancetype)initWithFrame:(CGRect)frame
                      delegate:(id<MPMapStylesViewDelegate>)delegate;
-- (void)invalidateLayout;
 - (void)highlightDefaultMapStyle;
 
 @end

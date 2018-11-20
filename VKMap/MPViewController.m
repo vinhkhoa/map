@@ -16,7 +16,8 @@
 - (void)viewDidLoad
 {
   [super viewDidLoad];
-  
+
+  // Map view
   _mapView = [[MPMapView alloc] initWithFrame:self.view.bounds 
                                      delegate:self];
   _mapView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -71,16 +72,6 @@
                                                       [weakSelf dismissViewControllerAnimated:YES completion:nil];
                                                     }]];
   [self presentViewController:alertController animated:YES completion:nil];
-}
-
-#pragma mark - Rotation
-
-- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
-{
-  MPMapStylesView *const mapStylesView = _mapView.mapStylesView;
-  [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
-    [mapStylesView invalidateLayout];
-  } completion:nil];
 }
 
 /*static NSString *TravelTimeLabelForRoute(MBRoute *route)

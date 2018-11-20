@@ -23,7 +23,7 @@ static const int kSettingsButtonMarginRight = 20;
 static NSString *const kAttributeKeyIsRoute = @"is_route";
 static NSString *const kAttributeKeyIsSelectedRoute = @"is_selected_route";
 
-static const int kMapStylesViewHeight = 200;
+static const int kMapStylesViewHeight = 110;
 
 typedef void (^FindRoutesSuccessBlock)(NSArray<MBRoute *> *routes);
 typedef void (^FindRoutesFailureBlock)(NSError *error);

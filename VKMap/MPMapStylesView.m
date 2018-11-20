@@ -6,8 +6,6 @@
 
 static const CGSize kMapStyleCellSize = {80, 70};
 static const int kMapStyleCellSpacing = 20;
-static const int kColumnCount = 3;
-static const int kPaddingV = 20;
 static NSString *const kCellID = @"CellID";
 static const MPMapStyleIdentifier DefaultMapStyleIdentifier = MPMapStyleIdentifierStreets;
 
@@ -63,17 +61,17 @@ NSString *MPDefaultMapStyleURL(void)
     _collectionViewLayout.itemSize = kMapStyleCellSize;
     _collectionViewLayout.minimumInteritemSpacing = kMapStyleCellSpacing;
     _collectionViewLayout.minimumLineSpacing = kMapStyleCellSpacing;
+    _collectionViewLayout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+    _collectionViewLayout.sectionInset = UIEdgeInsetsMake(kMapStyleCellSpacing, kMapStyleCellSpacing, kMapStyleCellSpacing, kMapStyleCellSpacing);
 
     _collectionView = [[UICollectionView alloc] initWithFrame:self.bounds collectionViewLayout:_collectionViewLayout];
-    _collectionView.backgroundColor = [UIColor whiteColor];
     [_collectionView registerClass:[MPMapStyleCellCollectionViewCell class] forCellWithReuseIdentifier:kCellID];
+    _collectionView.backgroundColor = [UIColor whiteColor];
+    _collectionView.alwaysBounceHorizontal = YES;
     _collectionView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _collectionView.dataSource = self;
     _collectionView.delegate = self;
     [self addSubview:_collectionView];
-
-    //if (selection.identifier == DefaultMapStyleIdentifier) {
-    //}
   }
   return self;
 }
@@ -102,16 +100,6 @@ NSString *MPDefaultMapStyleURL(void)
   MPMapStyleCellCollectionViewCell *const cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellID forIndexPath:indexPath];
   cell.mapStyleSelection = selection;
   return cell;
-}
-
-#pragma mark - UICollectionViewDelegateFlowLayout
-
-- (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section
-{
-  // Force contents to be centered
-  const CGFloat contentWidth = (kMapStyleCellSize.width*kColumnCount + kMapStyleCellSpacing*(kColumnCount - 1));
-  const CGFloat insetH = floorf((CGRectGetWidth(collectionView.bounds) - contentWidth) / 2);
-  return UIEdgeInsetsMake(kPaddingV, insetH, kPaddingV, insetH);
 }
 
 #pragma mark - UICollectionViewDelegate
