@@ -26,7 +26,10 @@ static NSString *const kAttributeKeyIsSelectedRoute = @"is_selected_route";
 
 static const int kMapStylesViewHeight = 110;
 
-static const int kRouteViewHeight = 200;
+static const int kRouteViewCollapsedHeight = 80;
+static const int kRouteViewHighestTopMargin = 50;
+static NSTimeInterval const kRouteViewBounceBackDuration = 0.17;
+static const CGFloat kSwipeVelocityThredshold = 500;
 
 typedef void (^FindRoutesSuccessBlock)(NSArray<MBRoute *> *routes);
 typedef void (^FindRoutesFailureBlock)(NSError *error);
@@ -37,7 +40,7 @@ typedef NS_ENUM (NSInteger, PolylineTapResult) {
   PolylineTapResultAlternativeRoute
 };
 
-@interface MPMapView() <MGLMapViewDelegate, MPMapButtonDelegate, MPMapStylesViewDelegate>
+@interface MPMapView() <MGLMapViewDelegate, MPMapButtonDelegate, MPMapStylesViewDelegate, UIGestureRecognizerDelegate>
 @end
 
 @implementation MPMapView
@@ -54,6 +57,8 @@ typedef NS_ENUM (NSInteger, PolylineTapResult) {
   NSArray<MBRoute *> *_routes;
   MPMapButton *_userLocationButton, *_settingsButton;
   MPRouteView *_routeView;
+  UIPanGestureRecognizer *_routeViewPanGR;
+  CGFloat _routeViewLastTranslatedY;
 }
 
 @synthesize mapStylesView = _mapStylesView;
@@ -122,12 +127,14 @@ typedef NS_ENUM (NSInteger, PolylineTapResult) {
     // Route details
     _routeView = [[MPRouteView alloc]
                   initWithFrame:CGRectMake(0,
-                                           CGRectGetHeight(self.bounds) - kRouteViewHeight,
+                                           CGRectGetHeight(self.bounds) - kRouteViewCollapsedHeight,
                                            CGRectGetWidth(self.bounds),
-                                           kRouteViewHeight)];
+                                           CGRectGetHeight(self.bounds) - kRouteViewHighestTopMargin)];
     _routeView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
+    _routeViewPanGR = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(_panRouteView:)];
+    _routeViewPanGR.delegate = self;
+    [_routeView addGestureRecognizer:_routeViewPanGR];
     [self addSubview:_routeView];
-    //[_routeView setHidden:YES];
   }
   return self;
 }
@@ -196,7 +203,7 @@ static PolylineTapResult PolylineTapResultWhenTappingOnPolylineFeature(MGLPolyli
 
     // Check if user roughly tapped on a route
     const CGRect pointRect = {point, CGSizeZero};
-    const CGRect touchRect = CGRectInset(pointRect, -5.0, -5.0);
+    const CGRect touchRect = CGRectInset(pointRect, -10.0, -10.0);
     for (id<MGLFeature> feature in [_mapView visibleFeaturesInRect:touchRect]) {
       if ([feature isKindOfClass:[MGLPolylineFeature class]]) {
         didTapOnRoute = [self _handleTapOnPolylineFeatureIfThisIsARoute:(MGLPolylineFeature *)feature];
@@ -230,6 +237,76 @@ static PolylineTapResult PolylineTapResultWhenTappingOnPolylineFeature(MGLPolyli
   [self _removeRoutesOnMap];
   _selectedRouteIdentifier = feature.identifier;
   [self _displayCurrentRoutes];
+}
+
+- (void)_panRouteView:(UIPanGestureRecognizer *)recognizer
+{
+  CGFloat thisTranslatedY = [recognizer translationInView:recognizer.view.superview].y;
+  CGFloat finalTranslatedY = thisTranslatedY + _routeViewLastTranslatedY; //MIN(thisTranslatedY + _routeViewLastTranslatedY, CGRectGetHeight(self.bounds) - kRouteViewCollapsedHeight);
+
+  if (recognizer.state == UIGestureRecognizerStateEnded ||
+      recognizer.state == UIGestureRecognizerStateCancelled ||
+      recognizer.state == UIGestureRecognizerStateFailed) {
+
+    // Calculate whether user is swiping based on velocity
+    const CGFloat translatedYDecidingPoint = -(CGRectGetHeight(self.bounds) - kRouteViewCollapsedHeight - kRouteViewHighestTopMargin) / 2;
+    const CGPoint velocity = [recognizer velocityInView:recognizer.view];
+    const BOOL swipeUp = velocity.y < -kSwipeVelocityThredshold;
+    const BOOL swipeDown = velocity.y > kSwipeVelocityThredshold;
+    const BOOL noSwipe = !swipeDown && !swipeUp;
+    const BOOL bounceDown = noSwipe && finalTranslatedY >= translatedYDecidingPoint;
+
+    // Any down swipe action pending OR user lifted their finger while below the height threshold?
+    if (swipeDown || bounceDown) {
+      _routeViewLastTranslatedY = 0;
+      [self _translateRouteViewToY:_routeViewLastTranslatedY
+                          animated:YES
+                        completion:^{
+                          _routeView.scrollEnabled = NO;
+                        }];
+    } else {
+      _routeViewLastTranslatedY = [self _routeViewHighestTranslatedY];
+      [self _translateRouteViewToY:_routeViewLastTranslatedY
+                          animated:YES
+                        completion:^{
+                          _routeView.scrollEnabled = YES;
+                        }];
+    }
+  } else {
+    // Constraint user from swiping down below the collapsed state or swiping up above the limit
+    const CGFloat highestTranslatedY = [self _routeViewHighestTranslatedY];
+    if (finalTranslatedY < highestTranslatedY) {
+      finalTranslatedY = highestTranslatedY;
+    } else if (finalTranslatedY > 0) {
+      finalTranslatedY = 0;
+    }
+
+    [self _translateRouteViewToY:finalTranslatedY animated:NO completion:nil];
+  }
+}
+
+- (int)_routeViewHighestTranslatedY
+{
+  return -(CGRectGetHeight(self.bounds) - kRouteViewHighestTopMargin - kRouteViewCollapsedHeight);
+}
+
+- (void)_translateRouteViewToY:(CGFloat)y animated:(BOOL)animated completion:(void(^)(void))completion
+{
+  [self _translateRouteViewToY:y animated:animated duration:kRouteViewBounceBackDuration completion:completion];
+}
+
+- (void)_translateRouteViewToY:(CGFloat)y animated:(BOOL)animated duration:(NSTimeInterval)duration completion:(void(^)(void))completion
+{
+  if (animated) {
+    [UIView animateWithDuration:duration delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+      _routeView.transform = CGAffineTransformMakeTranslation(0, y);
+    } completion:^(BOOL finished) {
+      if (completion) completion();
+    }];
+  } else {
+    _routeView.transform = CGAffineTransformMakeTranslation(0, y);
+    if (completion) completion();
+  }
 }
 
 #pragma mark - MGLMapViewDelegate

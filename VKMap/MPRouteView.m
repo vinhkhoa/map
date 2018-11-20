@@ -33,6 +33,7 @@ static const int kCellHeightStep = 40;
     _tableView = [[UITableView alloc] initWithFrame:self.bounds style:UITableViewStylePlain];
     [_tableView registerClass:[MPRouteHeaderTableViewCell class] forCellReuseIdentifier:kCellIDHeader];
     [_tableView registerClass:[MPRouteStepTableViewCell class] forCellReuseIdentifier:kCellIDStep];
+    _tableView.scrollEnabled = NO;
     _tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _tableView.dataSource = self;
     _tableView.delegate = self;
@@ -55,6 +56,16 @@ static const int kCellHeightStep = 40;
 {
   _route = route;
   [_tableView reloadData];
+}
+
+- (void)setScrollEnabled:(BOOL)scrollEnabled
+{
+  _tableView.scrollEnabled = scrollEnabled;
+}
+
+- (BOOL)scrollEnabled
+{
+  return _tableView.scrollEnabled;
 }
 
 #pragma mark - UITableViewDataSource
