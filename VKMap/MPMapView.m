@@ -3,6 +3,7 @@
 #import "MPMapView.h"
 #import "MPMapButton.h"
 #import "MPMapStylesView.h"
+#import "MPRouteView.h"
 
 @import Mapbox;
 @import MapboxDirections;
@@ -24,6 +25,8 @@ static NSString *const kAttributeKeyIsRoute = @"is_route";
 static NSString *const kAttributeKeyIsSelectedRoute = @"is_selected_route";
 
 static const int kMapStylesViewHeight = 110;
+
+static const int kRouteViewHeight = 200;
 
 typedef void (^FindRoutesSuccessBlock)(NSArray<MBRoute *> *routes);
 typedef void (^FindRoutesFailureBlock)(NSError *error);
@@ -50,6 +53,7 @@ typedef NS_ENUM (NSInteger, PolylineTapResult) {
   NSString *_selectedRouteIdentifier;
   NSArray<MBRoute *> *_routes;
   MPMapButton *_userLocationButton, *_settingsButton;
+  MPRouteView *_routeView;
 }
 
 @synthesize mapStylesView = _mapStylesView;
@@ -114,6 +118,16 @@ typedef NS_ENUM (NSInteger, PolylineTapResult) {
     _mapStylesView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
     [self addSubview:_mapStylesView];
     [_mapStylesView setHidden:YES];
+
+    // Route details
+    _routeView = [[MPRouteView alloc]
+                  initWithFrame:CGRectMake(0,
+                                           CGRectGetHeight(self.bounds) - kRouteViewHeight,
+                                           CGRectGetWidth(self.bounds),
+                                           kRouteViewHeight)];
+    _routeView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
+    [self addSubview:_routeView];
+    //[_routeView setHidden:YES];
   }
   return self;
 }
@@ -249,10 +263,10 @@ static PolylineTapResult PolylineTapResultWhenTappingOnPolylineFeature(MGLPolyli
   if (![_mapView.styleURL.absoluteString isEqualToString:mapStyleURL]) {
     _mapView.styleURL = [NSURL URLWithString:mapStyleURL];
 
-    // WHENEVER I CHANGE THE MAP STYLEURL, ALL THE ROUTES WILL BE CLEARED
+    // WHENEVER WE CHANGE THE MAP STYLEURL, ALL THE ROUTES WILL BE CLEARED
     // SO THIS IS A HACK TO SHOW THEM AGAIN.
     // IDEALLY WE SHOULD HOOK THIS "RE-SHOW ROUTES" INTO THE CALLBACK AFTER STYLEURL HAS BEEN UPDATED
-    // BUT I DON'T KNOW HOW TO DO THAT OR WHETHER THAT API EVEN EXISTS
+    // BUT NOT SURE HOW TO DO THAT OR WHETHER THAT API EVEN EXISTS
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
       [self _removeRoutesOnMap];
       [self _displayCurrentRoutes];
@@ -341,6 +355,7 @@ static NSArray<MBRoute *> *SortedRoutesToPutSelectedRouteFirst(NSArray<MBRoute *
     // Zoom in if selected
     if (selected) {
       [self _zoomToRoute:route];
+      _routeView.route = route;
     }
   }
 }
@@ -440,8 +455,8 @@ static void FindRoutes(CLLocationCoordinate2D fromLocation,
 {
   NSArray<MBWaypoint *> *const waypoints =
   @[
-    [[MBWaypoint alloc] initWithCoordinate:fromLocation coordinateAccuracy:-1 name:@"From"],
-    [[MBWaypoint alloc] initWithCoordinate:toLocation coordinateAccuracy:-1 name:@"To"],
+    [[MBWaypoint alloc] initWithCoordinate:fromLocation coordinateAccuracy:-1 name:@"Start"],
+    [[MBWaypoint alloc] initWithCoordinate:toLocation coordinateAccuracy:-1 name:@"Destination"],
     ];
   MBRouteOptions *const options = [[MBRouteOptions alloc]
                                    initWithWaypoints:waypoints

@@ -74,39 +74,4 @@
   [self presentViewController:alertController animated:YES completion:nil];
 }
 
-/*static NSString *TravelTimeLabelForRoute(MBRoute *route)
- {
- NSDateComponentsFormatter *const travelTimeFormatter = [[NSDateComponentsFormatter alloc] init];
- travelTimeFormatter.unitsStyle = NSDateComponentsFormatterUnitsStyleShort;
- return [travelTimeFormatter stringFromTimeInterval:route.expectedTravelTime];
- }
-
- static NSString *DistanceLabelForLeg(MBRouteLeg *leg)
- {
- NSLengthFormatter *const distanceFormatter = [[NSLengthFormatter alloc] init];
- return [distanceFormatter stringFromMeters:leg.distance];
- }*/
-
-/*
- MBRoute *const route = routes.firstObject;
- MBRouteLeg *const leg = route.legs.firstObject;
- if (leg) {
- NSLog(@"Route via %@:", leg);
-
- NSString *const formattedTravelTime = TravelTimeLabelForRoute(route);
- NSString *const formattedDistance = DistanceLabelForLeg(leg);
-
- NSLog(@"Distance: %@; ETA: %@", formattedDistance, formattedTravelTime);
-
- for (MBRouteStep *step in leg.steps) {
- NSLog(@"%@", step.instructions);
- //NSString *formattedDistance = [distanceFormatter stringFromMeters:step.distance];
- //NSLog(@"— %@ —", formattedDistance);
- }
- }
- */
-
-
-
-
 @end
