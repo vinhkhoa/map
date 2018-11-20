@@ -63,7 +63,7 @@
 - (void)mapView:(MPMapView *)mapView didFailToFindRoutesWithError:(NSError *)error
 {
   UIAlertController *const alertController = [UIAlertController alertControllerWithTitle:@"Error"
-                                                                                 message:@"Could not find any routes"
+                                                                                 message:@"Could not find any routes to the destination"
                                                                           preferredStyle:UIAlertControllerStyleAlert];
   __weak typeof(self) weakSelf = self;
   [alertController addAction:[UIAlertAction actionWithTitle:@"OK"

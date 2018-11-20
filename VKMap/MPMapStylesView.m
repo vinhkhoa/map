@@ -1,7 +1,7 @@
 //  VKMap
 
 #import "MPMapStylesView.h"
-#import "MPMapStyleCellCollectionViewCell.h"
+#import "MPMapStyleCollectionViewCell.h"
 #import "MPMapStyleSelection.h"
 
 static const CGSize kMapStyleCellSize = {80, 70};
@@ -44,7 +44,7 @@ NSString *MPDefaultMapStyleURL(void)
 {
   UICollectionView *_collectionView;
   UICollectionViewFlowLayout *_collectionViewLayout;
-  id<MPMapStylesViewDelegate> _delegate;
+  __weak id<MPMapStylesViewDelegate> _delegate;
 }
 
 - (instancetype)initWithFrame:(CGRect)frame
@@ -65,7 +65,7 @@ NSString *MPDefaultMapStyleURL(void)
     _collectionViewLayout.sectionInset = UIEdgeInsetsMake(kMapStyleCellSpacing, kMapStyleCellSpacing, kMapStyleCellSpacing, kMapStyleCellSpacing);
 
     _collectionView = [[UICollectionView alloc] initWithFrame:self.bounds collectionViewLayout:_collectionViewLayout];
-    [_collectionView registerClass:[MPMapStyleCellCollectionViewCell class] forCellWithReuseIdentifier:kCellID];
+    [_collectionView registerClass:[MPMapStyleCollectionViewCell class] forCellWithReuseIdentifier:kCellID];
     _collectionView.backgroundColor = [UIColor whiteColor];
     _collectionView.alwaysBounceHorizontal = YES;
     _collectionView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -74,11 +74,6 @@ NSString *MPDefaultMapStyleURL(void)
     [self addSubview:_collectionView];
   }
   return self;
-}
-
-- (void)invalidateLayout
-{
-  [_collectionViewLayout invalidateLayout];
 }
 
 - (void)highlightDefaultMapStyle
@@ -97,7 +92,7 @@ NSString *MPDefaultMapStyleURL(void)
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
   MPMapStyleSelection *const selection = [MapStyleSelections() objectAtIndex:indexPath.item];
-  MPMapStyleCellCollectionViewCell *const cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellID forIndexPath:indexPath];
+  MPMapStyleCollectionViewCell *const cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellID forIndexPath:indexPath];
   cell.mapStyleSelection = selection;
   return cell;
 }

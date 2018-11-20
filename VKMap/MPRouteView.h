@@ -4,6 +4,8 @@
 
 @class MBRoute;
 
+extern CGFloat MPRouteViewTableBottomInset;
+
 @interface MPRouteView : UIView
 
 @property (strong, nonatomic) MBRoute *route;

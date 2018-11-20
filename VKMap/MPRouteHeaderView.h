@@ -2,7 +2,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface MPRouteHeaderTableViewCell : UITableViewCell
+@interface MPRouteHeaderView : UIView
 
 - (void)setupWithETA:(NSString *)eta distance:(NSString *)distance;
 

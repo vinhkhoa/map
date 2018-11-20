@@ -16,20 +16,21 @@ static const int kRouteZoomEdgePaddingBottom = 60;
 static const int kRouteZoomEdgePaddingRight = 40;
 
 static const int kMapButtonSize = 50;
-static const int kUserLocationMarginBottom = 40;
-static const int kUserLocationMarginRight = 20;
-static const int kSettingsButtonMarginTop = 60;
-static const int kSettingsButtonMarginRight = 20;
+static const int kMapButtonVerticalMargin = 10;
+static const int kSettingsButtonMarginTop = 90;
+static const int kMapButtonMarginRight = 20;
 
 static NSString *const kAttributeKeyIsRoute = @"is_route";
 static NSString *const kAttributeKeyIsSelectedRoute = @"is_selected_route";
 
 static const int kMapStylesViewHeight = 110;
 
-static const int kRouteViewCollapsedHeight = 80;
-static const int kRouteViewHighestTopMargin = 50;
-static NSTimeInterval const kRouteViewBounceBackDuration = 0.17;
+static const int kRouteViewCollapsedHeight = 130;
+static const int kRouteViewHighestTopMargin = 160;
 static const CGFloat kSwipeVelocityThredshold = 500;
+static CGFloat const kExceedingThredsholdRatio = 3;
+static const NSTimeInterval kDurationToShow = 0.5;
+static const NSTimeInterval kDurationToHide = 0.4;
 
 typedef void (^FindRoutesSuccessBlock)(NSArray<MBRoute *> *routes);
 typedef void (^FindRoutesFailureBlock)(NSError *error);
@@ -52,7 +53,7 @@ typedef NS_ENUM (NSInteger, PolylineTapResult) {
   NSMutableArray<id<MGLAnnotation>> *_annotations;
   NSMutableArray<MGLSource *> *_mapSources;
   NSMutableArray<MGLStyleLayer *> *_mapLayers;
-  id<MPMapViewDelegate> _delegate;
+  __weak id<MPMapViewDelegate> _delegate;
   NSString *_selectedRouteIdentifier;
   NSArray<MBRoute *> *_routes;
   MPMapButton *_userLocationButton, *_settingsButton;
@@ -91,20 +92,11 @@ typedef NS_ENUM (NSInteger, PolylineTapResult) {
     }
     [_mapView addGestureRecognizer:_tapGR];
 
-    // User location button
-    _userLocationButton = [[MPMapButton alloc]
-                           initWithFrame:CGRectMake(CGRectGetWidth(self.bounds) - kUserLocationMarginRight - kMapButtonSize,
-                                                    CGRectGetHeight(self.bounds) - kUserLocationMarginBottom - kMapButtonSize,
-                                                    kMapButtonSize,
-                                                    kMapButtonSize)
-                           imageName:@"crosshair"
-                           delegate:self];
-    _userLocationButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin;
-    [self addSubview:_userLocationButton];
+    const CGFloat mapButtonX = CGRectGetWidth(self.bounds) - kMapButtonMarginRight - kMapButtonSize;
 
     // Settings button
     _settingsButton = [[MPMapButton alloc]
-                       initWithFrame:CGRectMake(CGRectGetWidth(self.bounds) - kSettingsButtonMarginRight - kMapButtonSize,
+                       initWithFrame:CGRectMake(mapButtonX,
                                                 kSettingsButtonMarginTop,
                                                 kMapButtonSize,
                                                 kMapButtonSize)
@@ -112,6 +104,17 @@ typedef NS_ENUM (NSInteger, PolylineTapResult) {
                        delegate:self];
     _settingsButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin;
     [self addSubview:_settingsButton];
+
+    // User location button
+    _userLocationButton = [[MPMapButton alloc]
+                           initWithFrame:CGRectMake(mapButtonX,
+                                                    kSettingsButtonMarginTop + kMapButtonSize + kMapButtonVerticalMargin,
+                                                    kMapButtonSize,
+                                                    kMapButtonSize)
+                           imageName:@"crosshair"
+                           delegate:self];
+    _userLocationButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin;
+    [self addSubview:_userLocationButton];
 
     // Map Styles Change
     _mapStylesView = [[MPMapStylesView alloc]
@@ -127,9 +130,10 @@ typedef NS_ENUM (NSInteger, PolylineTapResult) {
     // Route details
     _routeView = [[MPRouteView alloc]
                   initWithFrame:CGRectMake(0,
-                                           CGRectGetHeight(self.bounds) - kRouteViewCollapsedHeight,
+                                           CGRectGetHeight(self.bounds),
                                            CGRectGetWidth(self.bounds),
-                                           CGRectGetHeight(self.bounds) - kRouteViewHighestTopMargin)];
+                                           CGRectGetHeight(self.bounds) - kRouteViewHighestTopMargin + MPRouteViewTableBottomInset)];
+    _routeView.hidden = YES;
     _routeView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
     _routeViewPanGR = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(_panRouteView:)];
     _routeViewPanGR.delegate = self;
@@ -189,12 +193,10 @@ static PolylineTapResult PolylineTapResultWhenTappingOnPolylineFeature(MGLPolyli
   if (tapGR.state == UIGestureRecognizerStateEnded) {
     const CGPoint point = [tapGR locationInView:tapGR.view];
 
-    BOOL didTapOnRoute;
-
     // Check if user exactly tapped on a route
     for (id<MGLFeature> feature in [_mapView visibleFeaturesAtPoint:point]) {
       if ([feature isKindOfClass:[MGLPolylineFeature class]]) {
-        didTapOnRoute = [self _handleTapOnPolylineFeatureIfThisIsARoute:(MGLPolylineFeature *)feature];
+        const BOOL didTapOnRoute = [self _handleTapOnPolylineFeatureIfThisIsARoute:(MGLPolylineFeature *)feature];
         if (didTapOnRoute) {
           return;
         }
@@ -206,7 +208,7 @@ static PolylineTapResult PolylineTapResultWhenTappingOnPolylineFeature(MGLPolyli
     const CGRect touchRect = CGRectInset(pointRect, -10.0, -10.0);
     for (id<MGLFeature> feature in [_mapView visibleFeaturesInRect:touchRect]) {
       if ([feature isKindOfClass:[MGLPolylineFeature class]]) {
-        didTapOnRoute = [self _handleTapOnPolylineFeatureIfThisIsARoute:(MGLPolylineFeature *)feature];
+        const BOOL didTapOnRoute = [self _handleTapOnPolylineFeatureIfThisIsARoute:(MGLPolylineFeature *)feature];
         if (didTapOnRoute) {
           return;
         }
@@ -234,71 +236,80 @@ static PolylineTapResult PolylineTapResultWhenTappingOnPolylineFeature(MGLPolyli
 
 - (void)_handleTapOnPolylineFeatureOfAlternativeRoute:(MGLPolylineFeature *)feature
 {
+  /*
+    It would be nice if we can just "switch" route instead of removing and adding them again
+    as this causes the routes to "flash"
+   */
   [self _removeRoutesOnMap];
   _selectedRouteIdentifier = feature.identifier;
   [self _displayCurrentRoutes];
 }
 
+#pragma mark - Route view Translation
+
 - (void)_panRouteView:(UIPanGestureRecognizer *)recognizer
 {
-  CGFloat thisTranslatedY = [recognizer translationInView:recognizer.view.superview].y;
-  CGFloat finalTranslatedY = thisTranslatedY + _routeViewLastTranslatedY; //MIN(thisTranslatedY + _routeViewLastTranslatedY, CGRectGetHeight(self.bounds) - kRouteViewCollapsedHeight);
-
   if (recognizer.state == UIGestureRecognizerStateEnded ||
       recognizer.state == UIGestureRecognizerStateCancelled ||
       recognizer.state == UIGestureRecognizerStateFailed) {
-
-    // Calculate whether user is swiping based on velocity
-    const CGFloat translatedYDecidingPoint = -(CGRectGetHeight(self.bounds) - kRouteViewCollapsedHeight - kRouteViewHighestTopMargin) / 2;
-    const CGPoint velocity = [recognizer velocityInView:recognizer.view];
-    const BOOL swipeUp = velocity.y < -kSwipeVelocityThredshold;
-    const BOOL swipeDown = velocity.y > kSwipeVelocityThredshold;
-    const BOOL noSwipe = !swipeDown && !swipeUp;
-    const BOOL bounceDown = noSwipe && finalTranslatedY >= translatedYDecidingPoint;
-
-    // Any down swipe action pending OR user lifted their finger while below the height threshold?
-    if (swipeDown || bounceDown) {
-      _routeViewLastTranslatedY = 0;
-      [self _translateRouteViewToY:_routeViewLastTranslatedY
-                          animated:YES
-                        completion:^{
-                          _routeView.scrollEnabled = NO;
-                        }];
+    if ([self _shouldBounceRouteViewDownForPanGestureRecognizer:recognizer]) {
+      [self _translateRouteViewToCollapsedState];
     } else {
-      _routeViewLastTranslatedY = [self _routeViewHighestTranslatedY];
-      [self _translateRouteViewToY:_routeViewLastTranslatedY
-                          animated:YES
-                        completion:^{
-                          _routeView.scrollEnabled = YES;
-                        }];
+      [self _translateRouteViewToExpandedState];
     }
   } else {
-    // Constraint user from swiping down below the collapsed state or swiping up above the limit
-    const CGFloat highestTranslatedY = [self _routeViewHighestTranslatedY];
-    if (finalTranslatedY < highestTranslatedY) {
-      finalTranslatedY = highestTranslatedY;
-    } else if (finalTranslatedY > 0) {
-      finalTranslatedY = 0;
-    }
-
-    [self _translateRouteViewToY:finalTranslatedY animated:NO completion:nil];
+    const CGFloat thisTranslatedY = [recognizer translationInView:recognizer.view.superview].y;
+    const CGFloat combinedTranslatedY = thisTranslatedY + _routeViewLastTranslatedY;
+    const CGFloat finalTranslatedY = [self _finalTranslatedYFromCombinedTranslatedY:combinedTranslatedY];
+    [self _translateRouteViewToY:finalTranslatedY animated:NO duration:0 completion:nil];
   }
 }
 
-- (int)_routeViewHighestTranslatedY
+- (BOOL)_shouldBounceRouteViewDownForPanGestureRecognizer:(UIPanGestureRecognizer *)recognizer
 {
-  return -(CGRectGetHeight(self.bounds) - kRouteViewHighestTopMargin - kRouteViewCollapsedHeight);
+  const CGFloat thisTranslatedY = [recognizer translationInView:recognizer.view.superview].y;
+  const CGFloat combinedTranslatedY = thisTranslatedY + _routeViewLastTranslatedY;
+
+  // Calculate whether user is swiping based on velocity
+  const CGFloat translatedYDecidingPoint = -(CGRectGetHeight(self.bounds) - kRouteViewHighestTopMargin) / 2;
+  const CGPoint velocity = [recognizer velocityInView:recognizer.view];
+  const BOOL swipeUp = velocity.y < -kSwipeVelocityThredshold;
+  const BOOL swipeDown = velocity.y > kSwipeVelocityThredshold;
+  const BOOL noSwipe = !swipeDown && !swipeUp;
+  const BOOL bounceDown = noSwipe && combinedTranslatedY >= translatedYDecidingPoint;
+
+  return (swipeDown || bounceDown);
 }
 
-- (void)_translateRouteViewToY:(CGFloat)y animated:(BOOL)animated completion:(void(^)(void))completion
+- (CGFloat)_finalTranslatedYFromCombinedTranslatedY:(CGFloat)combinedTranslatedY
 {
-  [self _translateRouteViewToY:y animated:animated duration:kRouteViewBounceBackDuration completion:completion];
+  const CGFloat highestTranslatedY = [self _routeViewTranslatedYAtExpandedState];
+  if (combinedTranslatedY < highestTranslatedY) {
+    // Add 'stickines' when user drags past the upper limit
+    return (highestTranslatedY - (highestTranslatedY - combinedTranslatedY) / kExceedingThredsholdRatio);
+  } else if (combinedTranslatedY > 0) {
+    // Do not allow user to drag down from its lowest point
+    return 0;
+  } else {
+    return combinedTranslatedY;
+  }
+}
+
+- (int)_routeViewTranslatedYAtExpandedState
+{
+  return -(CGRectGetHeight(self.bounds) - kRouteViewHighestTopMargin);
 }
 
 - (void)_translateRouteViewToY:(CGFloat)y animated:(BOOL)animated duration:(NSTimeInterval)duration completion:(void(^)(void))completion
 {
   if (animated) {
-    [UIView animateWithDuration:duration delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+    [UIView
+     animateWithDuration:duration
+     delay:0
+     usingSpringWithDamping:0.8
+     initialSpringVelocity:0
+     options:UIViewAnimationOptionCurveEaseOut
+     animations:^{
       _routeView.transform = CGAffineTransformMakeTranslation(0, y);
     } completion:^(BOOL finished) {
       if (completion) completion();
@@ -307,6 +318,40 @@ static PolylineTapResult PolylineTapResultWhenTappingOnPolylineFeature(MGLPolyli
     _routeView.transform = CGAffineTransformMakeTranslation(0, y);
     if (completion) completion();
   }
+}
+
+- (void)_translateRouteViewToHiddenState
+{
+  _routeViewLastTranslatedY = 0;
+  [self _translateRouteViewToY:_routeViewLastTranslatedY
+                      animated:YES
+                      duration:kDurationToHide
+                    completion:^{
+                      _routeView.hidden = YES;
+                    }];
+}
+
+- (void)_translateRouteViewToCollapsedState
+{
+  _routeView.hidden = NO;
+  _routeViewLastTranslatedY = -kRouteViewCollapsedHeight;
+  [self _translateRouteViewToY:_routeViewLastTranslatedY
+                      animated:YES
+                      duration:kDurationToShow
+                    completion:^{
+                      _routeView.scrollEnabled = NO;
+                    }];
+}
+
+- (void)_translateRouteViewToExpandedState
+{
+  _routeViewLastTranslatedY = [self _routeViewTranslatedYAtExpandedState];
+  [self _translateRouteViewToY:_routeViewLastTranslatedY
+                      animated:YES
+                      duration:kDurationToShow
+                    completion:^{
+                      _routeView.scrollEnabled = YES;
+                    }];
 }
 
 #pragma mark - MGLMapViewDelegate
@@ -325,10 +370,21 @@ static PolylineTapResult PolylineTapResultWhenTappingOnPolylineFeature(MGLPolyli
                         zoomLevel:_mapView.zoomLevel
                          animated:YES];
   } else if (mapButton == _settingsButton) {
+    // Show map styles if hidden. Hide otherwise.
     if (_mapStylesView.hidden) {
       [self _showMapStylesViewAnimated:YES];
+
+      // Hide route view if visible
+      if (!_routeView.hidden) {
+        [self _translateRouteViewToHiddenState];
+      }
     } else {
       [self _hideMapStylesViewAnimated:YES];
+
+      // Show route view if routes available
+      if (_routes.count) {
+        [self _translateRouteViewToCollapsedState];
+      }
     }
   }
 }
@@ -358,19 +414,20 @@ static PolylineTapResult PolylineTapResultWhenTappingOnPolylineFeature(MGLPolyli
   [self _removeAnnotationsOnMap];
   [self _removeRoutesOnMap];
 
-  MGLPointAnnotation *destination = [[MGLPointAnnotation alloc] init];
+  MGLPointAnnotation *const destination = [[MGLPointAnnotation alloc] init];
   destination.coordinate = coordinate;
   destination.title = @"Destination";
   [_mapView addAnnotation:destination];
   [_annotations addObject:destination];
 
+  // Kick start finding routes whenever user changes destination
   __weak typeof(self) weakSelf = self;
   FindRoutes(_mapView.userLocation.coordinate,
              coordinate,
              ^(NSArray<MBRoute *> *routes) {
                [weakSelf _handleFoundRoutes:routes];
              }, ^(NSError *error) {
-               [weakSelf _showFindRoutesError:error];
+               [weakSelf _failedToFindRoutesWithError:error];
              });
 }
 
@@ -406,11 +463,12 @@ static NSArray<MBRoute *> *SortedRoutesToPutSelectedRouteFirst(NSArray<MBRoute *
 
 - (void)_displayCurrentRoutes
 {
-  // Sort array so that the selected route is the first on the list
+  // Sort array so that selected route is the first on the list
   NSArray<MBRoute *> *const sortedRoutes = (_selectedRouteIdentifier ?
                                             SortedRoutesToPutSelectedRouteFirst(_routes, _selectedRouteIdentifier)
                                             : _routes);
 
+  // Display selected route last so that it's highest on the map
   for (NSInteger i = sortedRoutes.count - 1; i >= 0; i--) {
     [self _displayRoute:sortedRoutes[i] selected:(i == 0)];
   };
@@ -429,17 +487,25 @@ static NSArray<MBRoute *> *SortedRoutesToPutSelectedRouteFirst(NSArray<MBRoute *
     [_mapSources addObject:source];
     [_mapLayers addObject:layer];
 
-    // Zoom in if selected
     if (selected) {
+      // Zoom in
       [self _zoomToRoute:route];
+
+      // Display route view
       _routeView.route = route;
+      [self _translateRouteViewToCollapsedState];
+
+      // Hide map styles
+      if (!_mapStylesView.hidden) {
+        [self _hideMapStylesViewAnimated:YES];
+      }
     }
   }
 }
 
 - (void)_zoomToRoute:(MBRoute *)route
 {
-  CLLocationCoordinate2D *routeCoordinates = malloc(route.coordinateCount * sizeof(CLLocationCoordinate2D));
+  CLLocationCoordinate2D *const routeCoordinates = malloc(route.coordinateCount * sizeof(CLLocationCoordinate2D));
   [route getCoordinates:routeCoordinates];
 
   [_mapView setVisibleCoordinates:routeCoordinates
@@ -463,7 +529,7 @@ static NSArray<MBRoute *> *SortedRoutesToPutSelectedRouteFirst(NSArray<MBRoute *
   [_mapSources removeAllObjects];
 }
 
-- (void)_showFindRoutesError:(NSError *)error
+- (void)_failedToFindRoutesWithError:(NSError *)error
 {
   if ([_delegate respondsToSelector:@selector(mapView:didFailToFindRoutesWithError:)]) {
     [_delegate mapView:self didFailToFindRoutesWithError:error];
@@ -487,9 +553,9 @@ static NSArray<MBRoute *> *SortedRoutesToPutSelectedRouteFirst(NSArray<MBRoute *
 
   if (animated) {
     [UIView
-     animateWithDuration:0.4
+     animateWithDuration:kDurationToShow
      delay:0
-     usingSpringWithDamping:0.87
+     usingSpringWithDamping:0.8
      initialSpringVelocity:0
      options:UIViewAnimationOptionCurveEaseInOut
      animations:^{
@@ -509,7 +575,7 @@ static NSArray<MBRoute *> *SortedRoutesToPutSelectedRouteFirst(NSArray<MBRoute *
                                      kMapStylesViewHeight);
   if (animated) {
     [UIView
-     animateWithDuration:0.3
+     animateWithDuration:kDurationToHide
      delay:0
      options:UIViewAnimationOptionCurveEaseOut
      animations:^{
@@ -575,7 +641,7 @@ static MGLShapeSource *SourceForRoute(MBRoute *route, BOOL selected)
   free(routeCoordinates);
 
   // Create source
-  return [[MGLShapeSource alloc] initWithIdentifier:route.legs.firstObject.name
+  return [[MGLShapeSource alloc] initWithIdentifier:[[NSUUID UUID] UUIDString]
                                            features:@[line]
                                             options:nil];
 }

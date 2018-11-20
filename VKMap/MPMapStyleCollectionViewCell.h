@@ -4,7 +4,7 @@
 
 @class MPMapStyleSelection;
 
-@interface MPMapStyleCellCollectionViewCell : UICollectionViewCell
+@interface MPMapStyleCollectionViewCell : UICollectionViewCell
 
 @property (strong, nonatomic) MPMapStyleSelection *mapStyleSelection;
 

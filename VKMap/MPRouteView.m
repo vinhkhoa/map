@@ -2,13 +2,13 @@
 
 #import "MPRouteView.h"
 #import "MPRouteStepTableViewCell.h"
-#import "MPRouteHeaderTableViewCell.h"
+#import "MPRouteHeaderView.h"
 
-static const int kHeaderRowIndex = 0;
-static NSString *const kCellIDHeader = @"cellIDHeader";
+CGFloat MPRouteViewTableBottomInset = 150;
+
 static NSString *const kCellIDStep = @"cellIDStep";
 
-static const int kCellHeightHeader = 60;
+static const int kHeaderViewHeight = 60;
 static const int kCellHeightStep = 40;
 
 @import MapboxDirections;
@@ -22,19 +22,26 @@ static const int kCellHeightStep = 40;
   UITableView *_tableView;
   NSLengthFormatter *_distanceFormatter;
   NSDateComponentsFormatter *_travelTimeFormatter;
+  BOOL _isDragging;
+  MPRouteHeaderView *_headerView;
 }
 
 - (instancetype)initWithFrame:(CGRect)frame
 {
   if (self = [super initWithFrame:frame]) {
+    self.backgroundColor = [UIColor whiteColor];
     self.layer.shadowRadius = 5;
     self.layer.shadowOpacity = 0.2;
 
-    _tableView = [[UITableView alloc] initWithFrame:self.bounds style:UITableViewStylePlain];
-    [_tableView registerClass:[MPRouteHeaderTableViewCell class] forCellReuseIdentifier:kCellIDHeader];
+    _headerView = [[MPRouteHeaderView alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(self.bounds), kHeaderViewHeight)];
+    _headerView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    [self addSubview:_headerView];
+
+    _tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, kHeaderViewHeight, CGRectGetWidth(self.bounds), CGRectGetHeight(self.bounds) - kHeaderViewHeight) style:UITableViewStylePlain];
     [_tableView registerClass:[MPRouteStepTableViewCell class] forCellReuseIdentifier:kCellIDStep];
-    _tableView.scrollEnabled = NO;
     _tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    _tableView.rowHeight = kCellHeightStep;
+    _tableView.contentInset = UIEdgeInsetsMake(0, 0, MPRouteViewTableBottomInset, 0);
     _tableView.dataSource = self;
     _tableView.delegate = self;
     [self addSubview:_tableView];
@@ -55,6 +62,8 @@ static const int kCellHeightStep = 40;
 - (void)setRoute:(MBRoute *)route
 {
   _route = route;
+  [_headerView setupWithETA:[_travelTimeFormatter stringFromTimeInterval:_route.expectedTravelTime]
+                   distance:[_distanceFormatter stringFromMeters:_route.distance]];
   [_tableView reloadData];
 }
 
@@ -72,32 +81,16 @@ static const int kCellHeightStep = 40;
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-  if (_route.legs.firstObject.steps.count) {
-    return _route.legs.firstObject.steps.count + 1;
-  } else {
-    return 0;
-  }
+  return _route.legs.firstObject.steps.count;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-  if (indexPath.row == kHeaderRowIndex) {
-    MPRouteHeaderTableViewCell *const cell = [tableView dequeueReusableCellWithIdentifier:kCellIDHeader forIndexPath:indexPath];
-    [cell setupWithETA:[_travelTimeFormatter stringFromTimeInterval:_route.expectedTravelTime]
-              distance:[_distanceFormatter stringFromMeters:_route.distance]];
-    return cell;
-  } else {
-    MBRouteStep *const step = _route.legs.firstObject.steps[indexPath.row - 1];
-    MPRouteStepTableViewCell *const cell = [tableView dequeueReusableCellWithIdentifier:kCellIDStep forIndexPath:indexPath];
-    [cell setupWithInstructions:step.instructions
-                       distance:[_distanceFormatter stringFromMeters:step.distance]];
-    return cell;
-  }
-}
-
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-  return (indexPath.row == kHeaderRowIndex ? kCellHeightHeader : kCellHeightStep);
+  MBRouteStep *const step = _route.legs.firstObject.steps[indexPath.row];
+  MPRouteStepTableViewCell *const cell = [tableView dequeueReusableCellWithIdentifier:kCellIDStep forIndexPath:indexPath];
+  [cell setupWithInstructions:step.instructions
+                     distance:(step.distance > 0 ? [_distanceFormatter stringFromMeters:step.distance] : nil)];
+  return cell;
 }
 
 #pragma mark - UITableViewDelegate

@@ -1,11 +1,11 @@
 //  VKMap
 
-#import "MPMapStyleCellCollectionViewCell.h"
+#import "MPMapStyleCollectionViewCell.h"
 #import "MPMapStyleSelection.h"
 
 static const CGFloat kImageRatio = 0.625; // = 5/8
 
-@implementation MPMapStyleCellCollectionViewCell
+@implementation MPMapStyleCollectionViewCell
 {
   UIImageView *_imageView;
   UILabel *_nameLabel;

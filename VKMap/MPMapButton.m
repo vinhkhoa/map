@@ -4,7 +4,7 @@
 
 @implementation MPMapButton
 {
-  id<MPMapButtonDelegate> _delegate;
+  __weak id<MPMapButtonDelegate> _delegate;
   UITapGestureRecognizer *_tapGR;
 }
 
