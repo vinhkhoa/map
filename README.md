@@ -6,9 +6,12 @@ The application starts off displaying a map at user's location.
 4. ETA and steps instruction for the selected route will be displayed at bottom. User can drag it up to view more details.
 5. User can tap on the Settings icon to switch between different map styles
 
-## Known issues:
+## Known issue
 
 - The app doesn't handle the case where user denies permission. We could display message asking user to go to settings app to turn location on, etc.
 - The route is a bit "jagged". It would be nice to apply some algorithm to the polyline to make the edges smoother.
 - All the routes are inserted after the destination marker so they are now on top of the marker. Ideally we want to insert them below the marker. That would look nicer.
 
+## Credits
+
+Icons are from https://thenounproject.com/search/?q=setting&i=1788565 and https://thenounproject.com/lucygzz/collection/basic-ui/?i=343389. Thank you!
